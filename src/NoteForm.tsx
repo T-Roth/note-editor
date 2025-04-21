@@ -1,24 +1,27 @@
 import { FormEvent, useRef, useState } from "react";
-import { Col, Row, Stack, Form, Button } from "react-bootstrap";
+import { Button, Col, Form, Row, Stack } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import CreatableReactSelect from "react-select/creatable";
-import { NoteData, Tag } from "./App";
 import { v4 as uuidV4 } from "uuid";
+import { NoteData, Tag } from "./App";
 
 type NoteFormProps = {
   onSubmit: (data: NoteData) => void;
   onAddTag: (tag: Tag) => void;
   availableTags: Tag[];
-};
+} & Partial<NoteData>;
 
 export default function NoteForm({
   onSubmit,
   onAddTag,
   availableTags,
+  title = "",
+  markdown = "",
+  tags = [],
 }: NoteFormProps) {
   const titleRef = useRef<HTMLInputElement>(null);
   const markdownRef = useRef<HTMLTextAreaElement>(null);
-  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [selectedTags, setSelectedTags] = useState<Tag[]>(tags);
   const navigate = useNavigate();
 
   function handleSubmit(e: FormEvent) {
@@ -38,7 +41,11 @@ export default function NoteForm({
           <Col>
             <Form.Group controlId="title">
               <Form.Label>Title</Form.Label>
-              <Form.Control required ref={titleRef}></Form.Control>
+              <Form.Control
+                required
+                ref={titleRef}
+                defaultValue={title}
+              ></Form.Control>
             </Form.Group>
           </Col>
           <Col>
@@ -61,7 +68,7 @@ export default function NoteForm({
                   setSelectedTags(
                     tags.map((tag) => {
                       return { label: tag.label, id: tag.value };
-                    })
+                    }),
                   );
                 }}
                 isMulti
@@ -76,9 +83,10 @@ export default function NoteForm({
             as="textarea"
             rows={15}
             ref={markdownRef}
+            defaultValue={markdown}
           ></Form.Control>
         </Form.Group>
-        <Stack direction="horizontal" gap={2}>
+        <Stack direction="horizontal" gap={2} className="justify-content-end">
           <Button type="submit" variant="primary">
             Save
           </Button>
